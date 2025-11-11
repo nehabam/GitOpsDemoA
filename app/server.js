@@ -1,5 +1,14 @@
-const express = require('express');
-const app = express();
-const PORT = process.env.PORT || 8080;
-app.get('/', (_, res) => res.send(`Hello GitOps! Commit: ${process.env.COMMIT_SHA || 'local'}`));
-app.listen(PORT, () => console.log(`Listening on ${PORT}`));
+const express = require('express')
+const app = express()
+
+app.get('/user', (req,res)=>{
+    res.send({'msg':'Microservice 4: User Said Namaste'})
+})
+
+app.get('/', (req,res)=>{
+    res.send({'msg':'Hello'})
+})
+
+app.listen(3003, ()=>{
+    console.log('Microservice 4 is listening at port 3003')
+})
