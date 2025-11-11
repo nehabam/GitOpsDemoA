@@ -42,8 +42,8 @@ jobs:
           registry: docker.io
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Build and Push (tags: sha & latest)
+          
+      - name: Build and Push (tags- sha & latest)
         id: build
         uses: docker/build-push-action@v5
         with:
