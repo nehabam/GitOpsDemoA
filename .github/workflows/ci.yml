@@ -1,4 +1,4 @@
-name: build-sign-and-update-deploy
+name: build-sign-and-update-deploy file
 
 on:
   push:
