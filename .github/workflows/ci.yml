@@ -75,6 +75,17 @@ jobs:
           name: sbom-${{ steps.meta.outputs.short_sha }}
           path: ${{ env.APP_PATH }}/sbom.spdx.json
 
+      
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3.6.0
+
+      - name: Cosign sign (keyless via OIDC)
+        env:
+          COSIGN_EXPERIMENTAL: "true"
+        run: |
+          cosign sign --yes \
+            ${{ env.IMAGE }}@${{ steps.build.outputs.digest }}
+
       - name: Cosign attest SBOM
         env:
           COSIGN_EXPERIMENTAL: "true"
@@ -93,15 +104,6 @@ jobs:
             --certificate-identity-regexp "https://github.com/UnpredictablePrashant/GitOpsDemoA/.*" \
             ${{ env.IMAGE }}@${{ steps.build.outputs.digest }}
 
-      - name: Install Cosign
-        uses: sigstore/cosign-installer@v3.6.0
-
-      - name: Cosign sign (keyless via OIDC)
-        env:
-          COSIGN_EXPERIMENTAL: "true"
-        run: |
-          cosign sign --yes \
-            ${{ env.IMAGE }}@${{ steps.build.outputs.digest }}
 
       - name: Install Trivy
         uses: aquasecurity/trivy-action@0.24.0
