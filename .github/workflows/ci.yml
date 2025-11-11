@@ -75,6 +75,24 @@ jobs:
           name: sbom-${{ steps.meta.outputs.short_sha }}
           path: ${{ env.APP_PATH }}/sbom.spdx.json
 
+      - name: Cosign attest SBOM
+        env:
+          COSIGN_EXPERIMENTAL: "true"
+        run: |
+          cosign attest --yes \
+            --predicate ${{ env.APP_PATH }}/sbom.spdx.json \
+            --type spdx \
+            ${{ env.IMAGE }}@${{ steps.build.outputs.digest }}
+
+        # (Optional) Verify we can fetch/verify the SBOM attestation
+      - name: Verify SBOM attestation
+        run: |
+          cosign verify-attestation \
+            --type spdx \
+            --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+            --certificate-identity-regexp "https://github.com/UnpredictablePrashant/GitOpsDemoA/.*" \
+            ${{ env.IMAGE }}@${{ steps.build.outputs.digest }}
+
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3.6.0
 
@@ -84,6 +102,24 @@ jobs:
         run: |
           cosign sign --yes \
             ${{ env.IMAGE }}@${{ steps.build.outputs.digest }}
+
+      - name: Install Trivy
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          scan-type: 'image'
+          image-ref: ${{ env.IMAGE }}@${{ steps.build.outputs.digest }}
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+          format: 'sarif'
+          output: 'trivy.sarif'
+
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy.sarif
+
+
 
       - name: Prepare deploy repo update
         run: |
