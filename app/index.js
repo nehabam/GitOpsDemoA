@@ -9,6 +9,10 @@ app.get('/', (req,res)=>{
     res.send({'msg':'Hello'})
 })
 
+app.get('/health', (req,res)=>{
+    res.send({'msg':'OK'})
+})
+
 app.listen(3003, ()=>{
     console.log('Microservice 4 is listening at port 3003')
 })
